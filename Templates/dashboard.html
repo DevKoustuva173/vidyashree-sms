@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+.cards{
+display:flex;
+flex-wrap:wrap;
+gap:20px;
+}
+
+.card{
+padding:25px;
+width:220px;
+border-radius:8px;
+color:white;
+text-align:center;
+font-size:18px;
+box-shadow:0 0 8px rgba(0,0,0,0.2);
+}
+
+/* Different card colors */
+
+.students{
+background:#007bff;
+}
+
+.attendance{
+background:#28a745;
+}
+
+.fees{
+background:#ff9800;
+}
+
+.staff{
+background:#6f42c1;
+}
+
+.card h3{
+margin-bottom:10px;
+}
+
+.card p{
+font-size:28px;
+font-weight:bold;
+}
+
+.card a{
+display:block;
+margin-top:10px;
+color:white;
+text-decoration:none;
+font-size:16px;
+}
+
+</style>
+
+<h2>Dashboard</h2>
+
+<div class="cards">
+    <div class="card students">
+        <h3>Total Students</h3>
+        <p>{{ total_students }}</p>
+        <a href="/student_list">View Students</a>
+    </div>
+    
+    <div class="card attendance">
+        <h3>Attendance Records</h3>
+        <p>{{ total_attendance }}</p>
+        <a href="/attendance_list">View Attendance</a>
+    </div>
+    
+    <div class="card fees">
+        <h3>Total Fees Collected</h3>
+        <p>₹ {{ total_fees }}</p>
+        <a href="/fees_list">View Fees</a>
+    </div>
+    
+    <div class="card staff">
+        <h3>Manage Students</h3>
+        <p>+</p>
+        <a href="/students">Add Student</a>
+    </div>
+
+</div>
+
+<div style="width:80%; margin:40px auto;">
+    <h3 style="text-align:center;">Fees Overview</h3>
+    <canvas id="feesChart"></canvas>
+</div>
+
+<div style="width:80%; margin:40px auto;">
+<h3 style="text-align:center;">Students Per Class</h3>
+<canvas id="classChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+
+const ctx = document.getElementById('feesChart');
+
+new Chart(ctx, {
+type: 'bar',
+data: {
+labels: ['Collected Fees'],
+datasets: [{
+label: 'Total Fees',
+data: [{{ total_fees or 0 }}],
+backgroundColor: ['#ff9800']
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+
+const classCtx = document.getElementById('classChart');
+
+new Chart(classCtx, {
+type: 'pie',
+data: {
+labels: {{ classes | tojson }},
+datasets: [{
+data: {{ class_counts | tojson }},
+backgroundColor: [
+'#007bff',
+'#28a745',
+'#ff9800',
+'#6f42c1',
+'#dc3545',
+'#20c997'
+]
+}]
+},
+options: {
+responsive: true
+}
+});
+
+});
+
+</script>
+
+{% endblock %}

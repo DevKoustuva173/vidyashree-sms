@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Student</title>
+</head>
+
+<body>
+
+<h2>Edit Student</h2>
+
+{% if error %}
+<p style="color:red; text-align:center;">{{ error }}</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+
+<label>Name:</label>
+<input type="text" name="name" value="{{ student['name'] }}" pattern="[A-Za-z .-]+" required><br><br>
+
+<label>Class:</label>
+<input type="text" name="class" value="{{ student['class'] }}" pattern="[A-Za-z0-9 ]+" required><br><br>
+
+<label>Section:</label>
+<select name="section">
+    <option value="">No Section</option>
+    <option value="A" {% if student['section']=='A' %}selected{% endif %}>A</option>
+    <option value="B" {% if student['section']=='B' %}selected{% endif %}>B</option>
+</select><br><br>
+
+<label>DOB:</label>
+<input type="date" name="dob" value="{{ student['dob'] }}"><br><br>
+
+<label>Phone:</label>
+<input type="text" name="phone" value="{{ student['phone'] }}" pattern="[0-9]{10}"><br><br>
+
+{% if student['photo'] %}
+<img src="{{ url_for('static', filename='uploads/' + student['photo']) }}" width="80" style="border-radius:50%; object-fit:cover;">
+{% else %}
+<p style="color:gray;">No Photo Available</p>
+{% endif %}
+
+<label>Update Photo:</label>
+<input type="file" name="photo" accept="image/png, image/jpeg"><br><br>
+
+<label>Address:</label>
+<textarea name="address" rows="3">{{ student['address'] }}</textarea><br><br>
+
+<button type="submit">Update Student</button>
+
+</form>
+
+</body>
+</html>

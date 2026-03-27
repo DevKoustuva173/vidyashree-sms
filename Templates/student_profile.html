@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>student_profile</title>
+
+    <style>
+body {
+    font-family: Arial;
+    background: #f4f6f9;
+    text-align: center;
+}
+
+.card {
+    background: white;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+p {
+    margin: 5px 0;
+}
+
+.button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 15px;
+    background: #2c7be5;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+</style>
+
+</head>
+<body>
+    <div class="card">
+        
+        {% if student['photo'] %}
+        <img src="{{ url_for('static', filename='uploads/' + student['photo']) }}">
+        {% else %}
+        <img src="{{ url_for('static', filename='default.png') }}">
+        {% endif %}
+        
+        <h2>{{ student['name'] }}</h2>
+        
+        <p><b>Class:</b> {{ student['class'] }} {% if student['section'] %}{{ student['section'] }}{% endif %}</p>
+        <p><b>DOB:</b> {{ student['dob'] }}</p>
+        <p><b>Phone:</b> {{ student['phone'] }}</p>
+        <p><b>Address:</b> {{ student['address'] }}</p>
+        
+        <a href="{{ url_for('student_list') }}" class="button">Back</a>
+
+    </div>
+
+</body>
+</html>

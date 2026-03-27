@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Students | Vidyashree Public School</title>
+
+<style>
+body { font-family: Arial; text-align: center; }
+input { padding: 6px; margin: 5px; }
+button { padding: 8px 15px; background: #2c7be5; color: white; border: none; border-radius: 5px; }
+
+button:hover {
+    background: #1a5edb;
+}
+
+small {
+    color: #555;
+    font-size: 12px;
+}
+
+form {
+    background: #f9f9f9;
+    max-width:350px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+label {
+    font-weight: bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Add Student</h2>
+
+{% if error %}
+<p style="color:red; text-align:center;">{{ error }}</p>
+{% endif %}
+
+<form method="POST" action="{{ url_for('students') }}" style="display:inline-block; text-align:left;" enctype="multipart/form-data">
+
+<label for="name">Name:</label><br>
+<input id="name" type="text" name="name" value="{{ name or '' }}" pattern="[A-Za-z .-]+" title="Only letters, spaces, dot (.) and dash (-) allowed" placeholder="Enter Student Name" required><br><br>
+
+<label for="class">Class:</label><br>
+<input id="class" type="text" name="class" value="{{ student_class or '' }}" pattern="[A-Za-z0-9 ]+" title="Only letters and numbers allowed" placeholder="Enter Class" required><br><br>
+
+<label for="section">Section:</label><br>
+<select name="section" id="section">
+    <option value="" {% if section=="" %}selected{% endif %}>No Section</option>
+    <option value="A" {% if section=="A" %}selected{% endif %}>A</option>
+    <option value="B" {% if section=="B" %}selected{% endif %}>B</option>
+    <option value="C" {% if section=="C" %}selected{% endif %}>C</option>
+</select><br><br>
+
+<label for="dob">Date of Birth:</label><br>
+<input id="dob" type="date" name="dob" value="{{ dob or '' }}" required><br><br>
+
+<label for="phone">Phone:</label><br>
+<input id="phone" type="tel" name="phone" value="{{ phone or '' }}" pattern="[0-9]{10}" maxlength="10" placeholder="Enter Phone Number" required><br><br>
+
+<label for="photo">Photo:</label><br>
+<small>Upload JPG/PNG (max 5MB)</small><br>
+<input id="photo" type="file" name="photo" accept="image/png, image/jpeg" onchange="previewImage(event)" required><br><br>
+
+<img id="preview" src="{{ url_for('static', filename='default.png') }}" width="80" style="border-radius:50%;"><br><br>
+
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+    
+    if (!file.type.startsWith("image/")) {
+        alert("Only image files allowed");
+        event.target.value = "";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be less than 5MB");
+        event.target.value = "";
+        return;
+    }
+
+    const img = document.getElementById('preview');
+    const url = URL.createObjectURL(file);
+    img.src = url;
+    img.onload = () => URL.revokeObjectURL(url);
+    img.style.display = 'block';
+}
+</script>
+
+<label for="address">Address:</label><br>
+<textarea id="address" name="address" required>{{ address or '' }}</textarea>
+
+<button type="submit">Add Student</button>
+
+</form>
+
+</body>
+</html>

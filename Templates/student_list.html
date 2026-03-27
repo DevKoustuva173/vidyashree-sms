@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+table{
+width:90%;
+margin:auto;
+border-collapse:collapse;
+background:white;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+th, td{
+padding:10px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#2c7be5;
+color:white;
+letter-spacing:0.5px;
+text-transform:uppercase;
+font-size:14px;
+position:sticky;
+top:0;
+z-index:1;
+}
+
+tr:hover{
+background:#f2f2f2;
+}
+
+button{
+cursor:pointer;
+}
+
+form:not([style*="inline"]){
+margin-bottom:20px;
+}
+
+</style>
+
+<h2 style="text-align:center;">Student List</h2>
+
+<p style="text-align:center; font-weight:bold;">
+Total Students: {{ total_students }}
+</p>
+
+<div style="text-align:center; margin-bottom:20px; display:flex; justify-content:center; gap:10px;">
+    <a href="{{ url_for('students') }}" style="padding:8px 15px; background:#2c7be5; color:white; text-decoration:none; border-radius:5px;">Add Student</a>
+    <a href="{{ url_for('dashboard') }}" style="padding:8px 15px; background:#28a745; color:white; text-decoration:none; border-radius:5px;">Back to Dashboard</a>
+    <a href="{{ url_for('export_students') }}" style="padding:8px 15px; background:#ffc107; color:black; text-decoration:none; border-radius:5px;">Export to Excel</a>
+</div>
+
+<form method="GET" action="{{ url_for('student_list') }}" style="text-align:center; margin-bottom:20px;">
+<input type="hidden" name="page" value="1">
+<input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Search student by name..." autofocus style="padding:6px; border-radius:4px; border:1px solid #ccc; width:220px;">
+<button type="submit" style="padding:6px 10px;">Search</button>
+</form>
+
+<table>
+    <tr>
+        <th>No.</th>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Section</th>
+        <th>DOB</th>
+        <th>Phone</th>
+        <th>Address</th>
+        <th>Action</th>
+        <th>Photo</th>
+    </tr>
+
+{% if students %}
+
+{% for student in students %}
+
+<tr>
+    <td>{{ loop.index + (page-1)*10 }}</td>
+    <a href="{{ url_for('student_profile', id=student['id']) }}" style="text-decoration:none; color:#2c7be5; font-weight:bold;">{{ student["name"] }}</a>
+</td>
+    <td>{{ student["class"] }}</td>
+    <td>
+        {% if student["section"] %}
+            {{ student["section"] }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+    <td>{{ student["dob"] }}</td>
+    <td>{{ student["phone"] }}</td>
+    <td>{{ student["address"] }}</td>
+    <td>
+        <a href="{{ url_for('edit_student', id=student['id']) }}" style="color:#28a745; font-weight:bold;">Edit</a>
+        |
+        <form action="{{ url_for('delete_student', id=student['id']) }}" method="POST" style="display:inline;">
+            <button type="submit" style="color:red; border:none; background:none; font-weight:bold;" onclick="return confirm('Are you sure?')">Delete</button>
+        </form>
+    </td>
+    <td>
+        {% if student["photo"] %}
+            <img src="{{ url_for('static', filename='uploads/' + student['photo']) }}" width="50" height="50" style="border-radius:50%; object-fit:cover;">
+            No Image
+        {% endif %}
+    </td>
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+<td colspan="9" style="padding:20px; color:#888; font-style:italic;">No students found</td>
+</tr>
+
+{% endif %}
+
+</table>
+
+<div style="text-align:center; margin-top:20px;">
+    {% if page > 1 %}
+        <a href="{{ url_for('student_list', page=page-1, search=request.args.get('search')) }}" style="padding:6px 12px; background:#2c7be5; color:white; border-radius:4px; text-decoration:none;">Previous</a>
+    {% else %}
+        <span style="padding:6px 12px; background:#ccc; color:white; border-radius:4px;">Previous</span>
+    {% endif %}
+
+    <span style="margin:0 10px;">Page {{ page }} of {{ total_pages }}</span>
+
+    {% if page < total_pages %}
+        <a href="{{ url_for('student_list', page=page+1, search=request.args.get('search')) }}" style="padding:6px 12px; background:#2c7be5; color:white; border-radius:4px; text-decoration:none;">Next</a>
+    {% else %}
+        <span style="padding:6px 12px; background:#ccc; color:white; border-radius:4px;">Next</span>
+    {% endif %}
+</div>
+
+{% endblock %}

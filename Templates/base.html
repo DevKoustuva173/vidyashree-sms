@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vidyashree Public School</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f4f6f9;
+}
+
+/* Sidebar */
+
+.sidebar{
+width:220px;
+height:100vh;
+background:#2c7be5;
+color:white;
+position:fixed;
+padding-top:20px;
+}
+
+.sidebar h2{
+text-align:center;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+padding:12px;
+text-decoration:none;
+margin:5px 0;
+}
+
+.sidebar a:hover{
+background:#1a5fd0;
+}
+
+/* Main Area */
+
+.main{
+margin-left:220px;
+padding:20px;
+}
+
+.header{
+background:white;
+padding:15px;
+border-radius:5px;
+box-shadow:0 0 5px rgba(0,0,0,0.1);
+margin-bottom:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>Dashboard</h2>
+
+
+<a href="/students">Add Student</a>
+<a href="/student_list">View Students</a>
+<a href="/attendance">Mark Attendance</a>
+<a href="/attendance_list">View Attendance</a>
+<a href="/fees">Add Fees</a>
+<a href="/fees_list">View Fees</a>
+<a href="/profile">Change Password</a>
+<a href="/logout">Logout</a>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+<h2>Vidyashree Public School</h2>
+</div>
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+</body>
+</html>
