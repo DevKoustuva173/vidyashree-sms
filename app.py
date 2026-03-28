@@ -7,6 +7,7 @@ from io import BytesIO
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
+os.makedirs("static/uploads", exist_ok=True)
 from werkzeug.utils import secure_filename
 import re
 
@@ -204,11 +205,11 @@ def students():
         
         # Class validation
         if not re.match(r'^[A-Za-z0-9 ]+$', student_class):
-            return render_template("students.html", error="Invalid class (only letters and numbers allowed)")
-
+            return render_template("students.html", error="Invalid class (only letters and numbers allowed)", name=name, student_class=student_class, section=section, dob=dob, phone=phone, address=address)
+        
         # Address validation
         if not re.match(r'^[A-Za-z0-9 ,.-]+$', address):
-            return render_template("students.html", error="Invalid address")
+            return render_template("students.html", error="Invalid address", name=name, student_class=student_class, section=section, dob=dob, phone=phone, address=address)
 
         photo = request.files["photo"]
 
@@ -363,17 +364,53 @@ def edit_student(id):
 
         name = request.form["name"]
         student_class = request.form["class"]
-        section = request.form["section"]
+        section = request.form.get("section", "")
         dob = request.form["dob"]
         phone = request.form["phone"]
         address = request.form["address"]
 
-        cursor.execute("""
-        UPDATE students
-        SET name=?, class=?, section=?, dob=?, phone=?, address=?
-        WHERE id=?
-        """, (name, student_class, section, dob, phone, address, id))
+        cursor.execute("SELECT * FROM students WHERE id=?", (id,))
+        student = cursor.fetchone()
 
+        # Name validation
+        if not re.match(r'^[A-Za-z .-]+$', name):
+            return render_template("edit_student.html", student=student, error="Invalid name")
+
+        # Class validation
+        if not re.match(r'^[A-Za-z0-9 ]+$', student_class):
+            return render_template("edit_student.html", student=student, error="Invalid class")
+
+        # Address validation
+        if not re.match(r'^[A-Za-z0-9 ,.-]+$', address):
+            return render_template("edit_student.html", student=student, error="Invalid address")
+        
+        cursor.execute("SELECT photo FROM students WHERE id=?", (id,))
+        old_photo = cursor.fetchone()["photo"]
+
+        photo = request.files.get("photo")
+        filename = None
+        
+        if photo and photo.filename != "":
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join("static/uploads", filename))
+
+            # 🧹 Delete old photo
+            if old_photo:
+                old_path = os.path.join("static/uploads", old_photo)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+        if filename:
+            cursor.execute("""
+            UPDATE students
+            SET name=?, class=?, section=?, dob=?, phone=?, address=?, photo=?
+            WHERE id=?
+            """, (name, student_class, section, dob, phone, address, filename, id))
+        else:
+            cursor.execute("""
+            UPDATE students
+            SET name=?, class=?, section=?, dob=?, phone=?, address=?
+            WHERE id=?
+            """, (name, student_class, section, dob, phone, address, id))
         conn.commit()
         conn.close()
 
@@ -462,6 +499,22 @@ def export_students():
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
+# student_profile
+@app.route("/student_profile/<int:id>")
+@login_required
+def student_profile(id):
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM students WHERE id=?", (id,))
+    student = cursor.fetchone()
+
+    conn.close()
+
+    return render_template("student_profile.html", student=student)
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
